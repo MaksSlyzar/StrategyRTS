@@ -28,7 +28,7 @@ var Game = function(){
                     unit.x = unit.to.x;
                     stop[0] = true;
                 }else{
-                    console.log(collision(unit, xDeg*speed, 0));
+                    //console.log(collision(unit, xDeg*speed, 0));
                     units[index].x += xDeg*speed;
                 }
                 if (unit.to.y-speed/2 <= unit.y && unit.to.y+speed/2 >= unit.y){
@@ -50,16 +50,6 @@ var Game = function(){
         result = false;
         col_unit.x += xDeg;
         col_unit.y += yDeg;
-
-        units.forEach(unit => {
-            if (col_unit.id != unit.id){
-                if (unit.x < col_unit.x && unit.x + 20 > col_unit.x){
-                    if (unit.y+20 > col_unit.y && unit.y < col_unit.y){
-                        result = true;
-                    }
-                }
-            }
-        });
 
         return result;
     }

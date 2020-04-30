@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create Source</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href='style.css' rel='stylesheet' />
+    </head>
+
+    <body>
+        <canvas id='canvas'></canvas>
+        <script src='settings.js'></script>
+        <script>
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
+            }
+
+            var builds = [
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),w:70,h:40},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),w:100,h:250},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),w:40,h:70},
+            ];
+            var player = {
+                x:20,
+                y:50,
+                w:20,
+                h:20,
+                to:[
+                    {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height)},
+                    //{x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height)},
+                    //{x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height)}
+                ]
+            }
+            var goes = [];
+
+            function Draw(){
+                ctx.fillStyle = 'red';
+                ctx.fillRect(player.x,player.y,player.w,player.h)
+                builds.forEach(i => {
+                    ctx.fillStyle='black';
+                    ctx.fillRect(i.x,i.y,i.w,i.h)                    
+                });
+                
+                goes.forEach(i => {
+                    ctx.fillStyle='gray';
+                    ctx.fillRect(i.x,i.y,5,5) 
+                });
+
+                player.to.forEach(i => {
+                   ctx.fillStyle='blue'; 
+                   ctx.fillRect(i.x,i.y,20,20) 
+                });
+            }
+            last_build = null;
+
+            function CreateSource(){
+                let steps = [{x:player.x,y:player.y}];
+                now_source = player.to[0];
+                player.to = [now_source]
+                speed=15;
+                i = now_source;
+
+                while (true){
+                    let rad = Math.atan2(steps[steps.length-1].y-i.y,i.x-steps[steps.length-1].x);
+                    let xDeg = Math.cos(rad)*speed;
+                    let yDeg = Math.sin(rad)*speed;
+                    console.log(xDeg)
+                    t = false;
+                    //COLLISION
+                    now_go = steps[steps.length-1];
+                    builds.forEach(el => {
+                        if (now_go.x + xDeg > el.x 
+                        &&  now_go.x + xDeg < el.x + el.w){
+                            if (now_go.y - yDeg > el.y
+                            &&  now_go.y - yDeg < el.y + el.h){
+                                t = true;
+                                //console.log('YES. ITS COLLISION')
+                                player.to.splice(player.to.length-1,1);
+                                last_step = steps[steps.length-1];
+                                if (last_step.y < el.y + el.h/2){
+                                    player.to.push({
+                                        x:el.x-10,
+                                        y:el.y-10
+                                    });
+                                    player.to.push({
+                                        x:el.x+el.w+10,
+                                        y:el.y-10
+                                    })
+                                }else if (last_step.y >= el.y + el.h/2){
+                                    player.to.push({
+                                        x:el.x-10,
+                                        y:el.y+el.h+10
+                                    });
+                                    player.to.push({
+                                        x:el.x+el.w+10,
+                                        y:el.y+el.h+10
+                                    })
+                                }
+                                //now_source = player.to[player.to.length-1]
+                                player.to.push(i)
+                            }
+                        }
+                    });
+                    //COLLISION
+                    if (t == false){
+                        steps.push({x:steps[steps.length-1].x+xDeg,y:steps[steps.length-1].y-yDeg});
+                    }
+                    unit = steps[steps.length-1];
+                    if (i.x-speed/2 <= unit.x && i.x+speed/2 >= unit.x){
+                        if (i.y-speed/2 <= unit.y && i.y+speed/2 >= unit.y)
+                            break;
+                    }
+                }
+                //console.log(player.to)
+            }
+
+            function Calculate(){
+                goes.push({x:player.x,
+                        y:player.y});
+                speed=10;
+                player.to.forEach((i, i_index) => {
+                    while (true){
+                        let rad = Math.atan2(goes[goes.length-1].y-i.y,i.x-goes[goes.length-1].x);
+                        let xDeg = Math.cos(rad)*speed;
+                        let yDeg = Math.sin(rad)*speed;
+                                               
+                        goes.push({x:goes[goes.length-1].x+xDeg,y:goes[goes.length-1].y-yDeg});
+                        unit = goes[goes.length-1];
+                        /*
+                        //COLLISION
+                        now_go = goes[goes.length-1];
+                        builds.forEach(el => {
+                            if (Math.round(now_go.x) >= Math.round(el.x) 
+                            &&  Math.round(now_go.x) <= Math.round(el.x) + el.w){
+                                if (Math.round(now_go.y) >= Math.round(el.y)
+                                &&  Math.round(now_go.y) <= Math.round(el.y) + el.h){
+                                    //console.log('YES. ITS COLLISION')
+                                    let new_massive = [];
+                                    for (var j = 0; j < i_index.length; i++){
+                                        new_massive.push(player.to[j]);
+                                    }
+                                    new_massive.push({
+                                        x:el.x-5,
+                                        y:el.y-5
+                                    })
+                                    for (var j = i_index; j < player.to.length; j++){
+                                        new_massive.push(player.to[j]);
+                                    }
+                                    player.to = new_massive;
+                                }
+                            }
+                        });
+                        //COLLISION
+                        */
+                        if (i.x-speed/2 <= unit.x && i.x+speed/2 >= unit.x){
+                            if (i.y-speed/2 <= unit.y && i.y+speed/2 >= unit.y)
+                                break;
+                        }
+                    }
+                });
+            }
+            canvas.onmousemove = function(e){
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                goes = []
+                player.to[0].x = e.clientX;
+                player.to[0].y = e.clientY;
+                CreateSource();
+                Calculate()
+                Draw()
+            }
+            CreateSource()     
+            Calculate();
+            Draw();
+        </script>
+    </body>
+</html>
