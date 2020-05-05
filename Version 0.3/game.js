@@ -18,40 +18,27 @@ var Game = function(){
     function MoveUnits(){
         units.forEach((unit, index) => {
             if (unit.do == 'GOING'){
-                let rad = Math.atan2(unit.y-unit.to.y,unit.to.x-unit.x);
-                let xDeg = Math.cos(rad);
-                let yDeg = Math.sin(rad);
-                let speed = unit.speed;
-                let stop = [false,false];
-
-                if (unit.to.x-speed/2 <= unit.x && unit.to.x+speed/2 >= unit.x){
-                    unit.x = unit.to.x;
-                    stop[0] = true;
-                }else{
-                    //console.log(collision(unit, xDeg*speed, 0));
-                    units[index].x += xDeg*speed;
-                }
-                if (unit.to.y-speed/2 <= unit.y && unit.to.y+speed/2 >= unit.y){
-                    stop[1] = true;
-                    unit.y = unit.to.y;
-                }else{
-                    //console.log(collision(unit, 0, yDeg*speed));
-                    units[index].y -= yDeg*speed;
-                }
-
-                if (stop[0] && stop[1]){
-                    unit.do = 'STOP';
-                }
+                speed=1;
+                
+                unit.to.forEach(i => {
+                    while (true){
+                        let rad = Math.atan2(unit.y-i.y,i.x-unit.x);
+                        let xDeg = Math.cos(rad)*speed;
+                        let yDeg = Math.sin(rad)*speed;
+                        
+                        unit.x += xDeg;
+                        unit.y -= yDeg;
+                        //console.log(xDeg)
+                        if (i.x-speed/2 <= unit.x && i.x+speed/2 >= unit.x){
+                            if (i.y-speed/2 <= unit.y && i.y+speed/2 >= unit.y){
+                                //console.log(xDeg)
+                                break;
+                            }
+                        }
+                    }
+                })
             }
         });
-    }
-
-    function collision(col_unit, xDeg, yDeg){
-        result = false;
-        col_unit.x += xDeg;
-        col_unit.y += yDeg;
-
-        return result;
     }
 
     class CreateUser{
@@ -59,7 +46,7 @@ var Game = function(){
             let _do;
             if (!to){
                 _do = 'STOP'
-                to={x:x,y:y}
+                to=[{x:x,y:y}]
             }else{
                 _do = 'GOING'
             }
@@ -82,8 +69,8 @@ var Game = function(){
         var yClick = e.clientY;
 
         units.forEach((unit,index) => {
-            units[index].to.x = xClick;
-            units[index].to.y = yClick;
+            units[index].to[0].x = xClick;
+            units[index].to[0].y = yClick;
             units[index].do = 'GOING';
         });
     }

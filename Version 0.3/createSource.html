@@ -17,9 +17,15 @@
             }
 
             var builds = [
-                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),w:70,h:40},
-                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),w:100,h:250},
-                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),w:40,h:70},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:70,h:40},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:100,h:250},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:40,h:70},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:70,h:40},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:100,h:250},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:40,h:70},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:70,h:40},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:100,h:250},
+                {x:getRandomInt(0,canvas.width),y:getRandomInt(0,canvas.height),rand:getRandomInt(10000,99999),w:40,h:70},
             ];
             var player = {
                 x:20,
@@ -60,58 +66,72 @@
                 player.to = [now_source]
                 speed=15;
                 i = now_source;
+                active_builds = [];
 
                 while (true){
                     let rad = Math.atan2(steps[steps.length-1].y-i.y,i.x-steps[steps.length-1].x);
                     let xDeg = Math.cos(rad)*speed;
                     let yDeg = Math.sin(rad)*speed;
-                    console.log(xDeg)
                     t = false;
                     //COLLISION
                     now_go = steps[steps.length-1];
                     builds.forEach(el => {
-                        if (now_go.x + xDeg > el.x 
-                        &&  now_go.x + xDeg < el.x + el.w){
-                            if (now_go.y - yDeg > el.y
-                            &&  now_go.y - yDeg < el.y + el.h){
+                        t = false;
+                        active_builds.forEach(elem => {
+                            if (elem == el.rand){
                                 t = true;
-                                //console.log('YES. ITS COLLISION')
-                                player.to.splice(player.to.length-1,1);
-                                last_step = steps[steps.length-1];
-                                if (last_step.y < el.y + el.h/2){
-                                    player.to.push({
-                                        x:el.x-10,
-                                        y:el.y-10
-                                    });
-                                    player.to.push({
-                                        x:el.x+el.w+10,
-                                        y:el.y-10
-                                    })
-                                }else if (last_step.y >= el.y + el.h/2){
-                                    player.to.push({
-                                        x:el.x-10,
-                                        y:el.y+el.h+10
-                                    });
-                                    player.to.push({
-                                        x:el.x+el.w+10,
-                                        y:el.y+el.h+10
-                                    })
-                                }
-                                //now_source = player.to[player.to.length-1]
-                                player.to.push(i)
+                            }
+                        });
+                        if (t == true){
+                            t = false;
+                        }else{
+                            if (now_go.x + xDeg > el.x 
+                            &&  now_go.x + xDeg < el.x + el.w){
+                                if (now_go.y - yDeg > el.y
+                                &&  now_go.y - yDeg < el.y + el.h){
+                                    //console.log('YES. ITS COLLISION')
+                                    player.to.splice(player.to.length-1,1);
+                                    last_step = steps[steps.length-1];
+                                    if (last_step.y < el.y + el.h/2){
+                                        player.to.push({
+                                            x:el.x-10,
+                                            y:el.y-10
+                                        });
+                                        player.to.push({
+                                            x:el.x+el.w+10,
+                                            y:el.y-10
+                                        })
+                                        t = true;
+                                    }else if (last_step.y >= el.y + el.h/2){
+                                        player.to.push({
+                                            x:el.x-10,
+                                            y:el.y+el.h+10
+                                        });
+                                        player.to.push({
+                                            x:el.x+el.w+10,
+                                            y:el.y+el.h+10
+                                        })
+                                        t = true;
+                                    }
+                                    active_builds.push(el.rand)
+                                    player.to.push(i)
+                                    i = player.to[player.to.length-1]
+                                    active_builds.push(el.rand)
+                                } 
                             }
                         }
                     });
                     //COLLISION
-                    if (t == false){
-                        steps.push({x:steps[steps.length-1].x+xDeg,y:steps[steps.length-1].y-yDeg});
-                    }
+                    
+                    steps.push({x:steps[steps.length-1].x+xDeg,y:steps[steps.length-1].y-yDeg});
+                    
                     unit = steps[steps.length-1];
                     if (i.x-speed/2 <= unit.x && i.x+speed/2 >= unit.x){
                         if (i.y-speed/2 <= unit.y && i.y+speed/2 >= unit.y)
                             break;
                     }
                 }
+                console.log(player.to)
                 //console.log(player.to)
             }
 
